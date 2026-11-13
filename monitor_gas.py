@@ -110,26 +110,21 @@ df = df.dropna(
 )
 
 df = df[
-    df["GESTORE"]
-      .astype(str)
-      .str.lower()
-      .ne("nan")
-]
-
-df = df[
     ~df["DENOMINAZIONE OFFERTA"]
-      .astype(str)
-      .str.contains(
-          "questa parte del foglio",
-          case=False,
-          na=False
-      )
+    .astype(str)
+    .str.contains(
+        "questa parte del foglio",
+        case=False,
+        na=False
+    )
 ]
 
 top3 = (
     df.sort_values("TOTALE_NUM")
       .head(3)
 )
+
+best = top3.iloc[0]
 
 first_total = float(top3.iloc[0]["TOTALE_NUM"])
 second_total = float(top3.iloc[1]["TOTALE_NUM"])
@@ -138,8 +133,6 @@ saving_vs_second = round(
     second_total - first_total,
     2
 )
-
-best = top3.iloc[0]
 
 current = {
     "gestore": str(best["GESTORE"]),
@@ -156,27 +149,33 @@ changed = (
     or previous.get("totale") != current["totale"]
 )
 
-for idx, (_, row) in enumerate(top3.iterrows()):
+if changed:
 
-    difference_block = ""
+    medals = ["🥇", "🥈", "🥉"]
 
-    if idx == 0:
+    cards = ""
 
-        difference_block = f"""
-        <div style="
-            background:#e8fff0;
-            border-left:5px solid #28a745;
-            padding:12px;
-            border-radius:8px;
-            margin-bottom:12px;
-            font-weight:bold;
-        ">
-            📉 Vantaggio sul 2° classificato:
-            € {saving_vs_second:.2f}
-        </div>
-        """
+    for idx, (_, row) in enumerate(top3.iterrows()):
 
-    cards += f"""
+        difference_block = ""
+
+        if idx == 0:
+
+            difference_block = f"""
+            <div style="
+                background:#e8fff0;
+                border-left:5px solid #28a745;
+                padding:12px;
+                border-radius:8px;
+                margin-bottom:12px;
+                font-weight:bold;
+            ">
+                📉 Vantaggio sul 2° classificato:
+                € {saving_vs_second:.2f}
+            </div>
+            """
+
+        cards += f"""
         <div style="
             background:#ffffff;
             border-radius:18px;
@@ -228,7 +227,6 @@ for idx, (_, row) in enumerate(top3.iterrows()):
                 </div>
 
             </div>
-
             <div style="
                 background:#eef5ff;
                 padding:12px;
@@ -237,8 +235,9 @@ for idx, (_, row) in enumerate(top3.iterrows()):
             ">
                 <b>💰 TOTALE:</b>
                 {row['TOTALE']}
-                {difference_block}
             </div>
+
+            {difference_block}
 
             <table style="
                 width:100%;
@@ -287,27 +286,28 @@ for idx, (_, row) in enumerate(top3.iterrows()):
 
             </div>
 
-<div style="
-    text-align:center;
-    margin-top:15px;
-">
+            <div style="
+                text-align:center;
+                margin-top:15px;
+            ">
 
-    <a href="{row['LINK OFFERTA']}"
-       style="
-            background:#0078d4;
-            color:white;
-            text-decoration:none;
-            padding:12px 20px;
-            border-radius:8px;
-            display:inline-block;
-            font-weight:bold;
-       ">
+                <a href="{row['LINK OFFERTA']}"
+                   style="
+                        background:#0078d4;
+                        color:white;
+                        text-decoration:none;
+                        padding:14px 24px;
+                        border-radius:10px;
+                        display:inline-block;
+                        font-weight:bold;
+                        font-size:16px;
+                   ">
 
-       🔗 Vai all'offerta
+                   🔗 APRI OFFERTA
 
-    </a>
+                </a>
 
-</div>
+            </div>
 
         </div>
         """
@@ -316,4 +316,77 @@ for idx, (_, row) in enumerate(top3.iterrows()):
     <html>
 
     <body style="
-        background:#
+        background:#f0f2f5;
+        font-family:Arial,sans-serif;
+        margin:0;
+        padding:20px;
+    ">
+
+        <div style="
+            max-width:700px;
+            margin:auto;
+        ">
+
+            <h1 style="
+                color:#003366;
+                text-align:center;
+            ">
+                🏆 Nuova Migliore Offerta Gas
+            </h1>
+
+            <p style="
+                text-align:center;
+                color:#555;
+                font-size:16px;
+            ">
+                È stata rilevata una variazione nella classifica delle offerte gas a prezzo fisso.
+            </p>
+
+            {cards}
+
+            <div style="
+                background:#fff3cd;
+                border-radius:12px;
+                padding:16px;
+                margin-top:20px;
+                border:1px solid #ffe69c;
+            ">
+
+                <h3 style="margin-top:0;">
+                    📌 Migliore Offerta Precedente
+                </h3>
+
+                <b>Gestore:</b>
+                {previous.get('gestore', 'N/D')}
+
+                <br><br>
+
+                <b>Offerta:</b>
+                {previous.get('offerta', 'N/D')}
+
+                <br><br>
+
+                <b>Totale:</b>
+                {previous.get('totale', 'N/D')}
+
+            </div>
+
+        </div>
+
+    </body>
+
+    </html>
+    """
+
+    send_email(
+        f"🏆 {best['GESTORE']} | {best['PREZZO Smc']}",
+        html_body
+    )
+
+    save_current(current)
+
+    print("EMAIL INVIATA")
+
+else:
+
+    print("NESSUNA VARIAZIONE")
