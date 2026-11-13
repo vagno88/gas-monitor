@@ -87,21 +87,21 @@ print("Download offerte...")
 df = pd.read_csv(CSV_URL)
 
 df["TOTALE_NUM"] = (
-    df["TOTALE"]
-    .astype(str)
-    .str.replace("€", "", regex=False)
-    .str.replace(".", "", regex=False)
-    .str.replace(",", ".", regex=False)
-    .str.strip()
-)
-
 df["TOTALE_NUM"] = pd.to_numeric(
     df["TOTALE_NUM"],
     errors="coerce"
 )
 
 df = df.dropna(
-    df = df[
+    subset=[
+        "GESTORE",
+        "DENOMINAZIONE OFFERTA",
+        "PREZZO Smc",
+        "TOTALE_NUM"
+    ]
+)
+
+df = df[
     df["GESTORE"]
       .astype(str)
       .str.lower()
@@ -117,13 +117,6 @@ df = df[
           na=False
       )
 ]
-    subset=[
-        "GESTORE",
-        "DENOMINAZIONE OFFERTA",
-        "PREZZO Smc",
-        "TOTALE_NUM"
-    ]
-)
 
 top3 = (
     df.sort_values("TOTALE_NUM")
