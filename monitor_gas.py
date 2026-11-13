@@ -156,33 +156,27 @@ changed = (
     or previous.get("totale") != current["totale"]
 )
 
-if changed:
+for idx, (_, row) in enumerate(top3.iterrows()):
 
-    medals = ["🥇", "🥈", "🥉"]
+    difference_block = ""
 
-    cards = ""
+    if idx == 0:
 
-    for idx, (_, row) in enumerate(top3.iterrows()):
+        difference_block = f"""
+        <div style="
+            background:#e8fff0;
+            border-left:5px solid #28a745;
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:12px;
+            font-weight:bold;
+        ">
+            📉 Vantaggio sul 2° classificato:
+            € {saving_vs_second:.2f}
+        </div>
+        """
 
-        difference_block = ""
-
-if idx == 0:
-
-    difference_block = f"""
-    <div style="
-        background:#e8fff0;
-        border-left:5px solid #28a745;
-        padding:12px;
-        border-radius:8px;
-        margin-bottom:12px;
-        font-weight:bold;
-    ">
-        📉 Vantaggio sul 2° classificato:
-        € {saving_vs_second:.2f}
-    </div>
-    """
-
-        cards += f"""
+    cards += f"""
         <div style="
             background:#ffffff;
             border-radius:18px;
