@@ -93,8 +93,8 @@ best = df.loc[
 ]
 
 current = {
-    "gestore": best["GESTORE"],
-    "offerta": best["DENOMINAZIONE OFFERTA"],
+    "gestore": str(best["GESTORE"]),
+    "offerta": str(best["DENOMINAZIONE OFFERTA"]),
     "totale": float(best["TOTALE_NUM"]),
     "smc": str(best["PREZZO Smc"])
 }
