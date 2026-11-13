@@ -28,3 +28,13 @@ jobs:
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
         run: python monitor_gas.py
+              - name: Commit state file
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+          git add best_offer.json
+
+          git diff --staged --quiet || git commit -m "Update best offer"
+
+          git push
