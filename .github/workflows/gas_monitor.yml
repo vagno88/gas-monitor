@@ -1,32 +1,28 @@
 name: Gas Monitor
 
 on:
-
   workflow_dispatch:
 
   schedule:
     - cron: '0 7 * * *'
 
 jobs:
-
   run:
-
-    ru*s-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v4
 
- *    - uses: actions/checkout@v4
-
- *    - uses: actions/setup-python@v*
+      - uses: actions/setup-python@v5
         with:
-          python-ve*sion: "3.12"
+          python-version: '3.12'
 
-      - name: Instal* dependencies
-        run: pip ins*all -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - n*me: Execute script
+      - name: Execute script
         env:
-  *       EMAIL_USER: ${{ secrets.EMA*L_USER }}
-          EMAIL_PASSWORD* ${{ secrets.EMAIL_PASSWORD }}
-   *      EMAIL_TO: ${{ secrets.EMAIL_*O }}
-        run: python monitor_g*s.py
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: python monitor_gas.py
