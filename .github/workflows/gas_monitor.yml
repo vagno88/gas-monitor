@@ -1,4 +1,6 @@
 name: Gas Monitor
+permissions:
+  contents: write
 
 on:
   workflow_dispatch:
