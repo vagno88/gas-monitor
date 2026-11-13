@@ -20,14 +20,17 @@ EMAIL_TO = [
 
 def send_email(subject, body):
 
-    msg = MIMEText(body)
+    msg = MIMEText(body, "plain", "utf-8")
 
     msg["Subject"] = subject
     msg["From"] = EMAIL_USER
     msg["To"] = ", ".join(EMAIL_TO)
 
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
+    with smtplib.SMTP_SSL(
+        "smtp.gmail.com",
+        465
+    ) as server:
+
         server.login(
             EMAIL_USER,
             EMAIL_PASSWORD
@@ -70,6 +73,8 @@ def save_current(data):
         )
 
 
+print("Download offerte...")
+
 df = pd.read_csv(CSV_URL)
 
 df["TOTALE_NUM"] = (
@@ -88,9 +93,12 @@ df["TOTALE_NUM"] = pd.to_numeric(
 
 df = df.dropna(subset=["TOTALE_NUM"])
 
-best = df.loc[
-    df["TOTALE_NUM"].idxmin()
-]
+top3 = (
+    df.sort_values("TOTALE_NUM")
+      .head(3)
+)
+
+best = top3.iloc[0]
 
 current = {
     "gestore": str(best["GESTORE"]),
@@ -102,40 +110,84 @@ current = {
 previous = load_previous()
 
 changed = (
-    previous.get("gestore")
-    != current["gestore"]
-    or previous.get("offerta")
-    != current["offerta"]
-    or previous.get("totale")
-    != current["totale"]
+    previous.get("gestore") != current["gestore"]
+    or previous.get("offerta") != current["offerta"]
+    or previous.get("totale") != current["totale"]
 )
 
 if changed:
 
-    body = f"""
-NUOVA MIGLIORE OFFERTA GAS
+    body = """
+🏆 TOP 3 OFFERTE GAS PREZZO FISSO
+=================================
+"""
 
-GESTORE:
-{current['gestore']}
+    for pos, (_, row) in enumerate(top3.iterrows(), start=1):
 
-OFFERTA:
-{current['offerta']}
+        body += f"""
 
-TOTALE:
-€ {current['totale']:.2f}
+==========================================
+POSIZIONE #{pos}
+==========================================
 
-PREZZO SMC:
-{current['smc']}
+GESTORE
+--------
+{row['GESTORE']}
 
-----------------------
+OFFERTA
+--------
+{row['DENOMINAZIONE OFFERTA']}
 
-PRECEDENTE
+QVD - CCV
+---------
+{row['QVD - CCV']}
 
-{previous}
+PREZZO SMC
+----------
+{row['PREZZO Smc']}
+
+TOTALE
+-------
+{row['TOTALE']}
+
+AGGIORNATO
+----------
+{row['AGGIORNATO']}
+
+VALIDITA'
+---------
+{row["VALIDITA'"]}
+
+NOTE
+----
+{row['NOTE']}
+
+DURATA CONTRATTO
+----------------
+{row['DURATA CONTRATTO']}
+"""
+
+    body += f"""
+
+==========================================
+PRECEDENTE MIGLIORE OFFERTA
+==========================================
+
+GESTORE
+--------
+{previous.get('gestore', 'N/D')}
+
+OFFERTA
+--------
+{previous.get('offerta', 'N/D')}
+
+TOTALE
+------
+{previous.get('totale', 'N/D')}
 """
 
     send_email(
-        "Nuova migliore offerta GAS",
+        "🏆 Nuova migliore offerta GAS rilevata",
         body
     )
 
