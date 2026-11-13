@@ -100,7 +100,14 @@ df["TOTALE_NUM"] = pd.to_numeric(
     errors="coerce"
 )
 
-df = df.dropna(subset=["TOTALE_NUM"])
+df = df.dropna(
+    subset=[
+        "GESTORE",
+        "DENOMINAZIONE OFFERTA",
+        "PREZZO Smc",
+        "TOTALE_NUM"
+    ]
+)
 
 top3 = (
     df.sort_values("TOTALE_NUM")
@@ -135,11 +142,11 @@ if changed:
         cards += f"""
         <div style="
             background:#ffffff;
-            border-radius:16px;
-            padding:18px;
-            margin-bottom:18px;
+            border-radius:18px;
+            padding:20px;
+            margin-bottom:20px;
             border:1px solid #d9d9d9;
-            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+            box-shadow:0 3px 12px rgba(0,0,0,0.08);
         ">
 
             <h2 style="
@@ -149,24 +156,26 @@ if changed:
                 {medals[idx]} {row['GESTORE']}
             </h2>
 
-            <p style="
-                margin-top:6px;
-                margin-bottom:16px;
-                font-size:15px;
+            <div style="
+                margin-top:8px;
+                font-size:17px;
+                font-weight:bold;
             ">
-                <strong>{row['DENOMINAZIONE OFFERTA']}</strong>
-            </p>
+                {row['DENOMINAZIONE OFFERTA']}
+            </div>
 
             <div style="
                 background:#dff6dd;
                 color:#0a6417;
-                padding:15px;
+                padding:18px;
                 border-radius:12px;
                 text-align:center;
-                margin-bottom:16px;
+                margin-top:15px;
+                margin-bottom:15px;
             ">
+
                 <div style="
-                    font-size:12px;
+                    font-size:13px;
                     font-weight:bold;
                     letter-spacing:1px;
                 ">
@@ -174,12 +183,23 @@ if changed:
                 </div>
 
                 <div style="
-                    font-size:34px;
+                    font-size:38px;
                     font-weight:bold;
-                    margin-top:4px;
+                    margin-top:5px;
                 ">
                     {row['PREZZO Smc']}
                 </div>
+
+            </div>
+
+            <div style="
+                background:#eef5ff;
+                padding:12px;
+                border-radius:10px;
+                margin-bottom:12px;
+            ">
+                <b>💰 TOTALE:</b>
+                {row['TOTALE']}
             </div>
 
             <table style="
@@ -187,11 +207,6 @@ if changed:
                 border-collapse:collapse;
                 font-size:14px;
             ">
-
-                <tr>
-                    <td style="padding:6px;"><b>💰 Totale</b></td>
-                    <td style="padding:6px;">{row['TOTALE']}</td>
-                </tr>
 
                 <tr>
                     <td style="padding:6px;"><b>📋 QVD-CCV</b></td>
@@ -209,21 +224,29 @@ if changed:
                 </tr>
 
                 <tr>
-                    <td style="padding:6px;"><b>📝 Durata</b></td>
+                    <td style="padding:6px;"><b>📝 Durata contratto</b></td>
                     <td style="padding:6px;">{row['DURATA CONTRATTO']}</td>
                 </tr>
 
             </table>
 
             <div style="
-                background:#f5f5f5;
+                background:#fff8e1;
+                border-left:5px solid #ffb300;
+                padding:12px;
+                margin-top:15px;
                 border-radius:8px;
-                padding:10px;
-                margin-top:12px;
-                font-size:12px;
-                color:#555;
             ">
+
+                <div style="
+                    font-weight:bold;
+                    margin-bottom:8px;
+                ">
+                    📌 NOTE IMPORTANTI
+                </div>
+
                 {row['NOTE']}
+
             </div>
 
         </div>
@@ -231,74 +254,6 @@ if changed:
 
     html_body = f"""
     <html>
+
     <body style="
-        background:#f0f2f5;
-        font-family:Arial,sans-serif;
-        padding:20px;
-        margin:0;
-    ">
-
-        <div style="
-            max-width:700px;
-            margin:auto;
-        ">
-
-            <h1 style="
-                color:#003366;
-                text-align:center;
-            ">
-                🏆 Nuova Migliore Offerta Gas
-            </h1>
-
-            <p style="
-                text-align:center;
-                color:#555;
-            ">
-                È stata rilevata una variazione nella classifica delle offerte gas a prezzo fisso.
-            </p>
-
-            {cards}
-
-            <div style="
-                background:#fff3cd;
-                border-radius:12px;
-                padding:16px;
-                margin-top:20px;
-                border:1px solid #ffe69c;
-            ">
-
-                <h3 style="margin-top:0;">
-                    📌 Precedente Migliore Offerta
-                </h3>
-
-                <b>Gestore:</b>
-                {previous.get('gestore', 'N/D')}
-                <br><br>
-
-                <b>Offerta:</b>
-                {previous.get('offerta', 'N/D')}
-                <br><br>
-
-                <b>Totale:</b>
-                {previous.get('totale', 'N/D')}
-
-            </div>
-
-        </div>
-
-    </body>
-    </html>
-    """
-
-    send_email(
-        "🏆 Nuova migliore offerta GAS rilevata",
-        html_body
-    )
-
-    save_current(current)
-
-    print("EMAIL INVIATA")
-
-else:
-
-    print("NESSUNA VARIAZIONE")
+        background:#
