@@ -138,17 +138,6 @@ saving_vs_second = round(
     second_total - first_total,
     2
 )
-    df.sort_values("TOTALE_NUM")
-      .head(3)
-)
-
-first_total = float(top3.iloc[0]["TOTALE_NUM"])
-second_total = float(top3.iloc[1]["TOTALE_NUM"])
-
-saving_vs_second = round(
-    second_total - first_total,
-    2
-)
 
 best = top3.iloc[0]
 
