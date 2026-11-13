@@ -101,6 +101,22 @@ df["TOTALE_NUM"] = pd.to_numeric(
 )
 
 df = df.dropna(
+    df = df[
+    df["GESTORE"]
+      .astype(str)
+      .str.lower()
+      .ne("nan")
+]
+
+df = df[
+    ~df["DENOMINAZIONE OFFERTA"]
+      .astype(str)
+      .str.contains(
+          "questa parte del foglio",
+          case=False,
+          na=False
+      )
+]
     subset=[
         "GESTORE",
         "DENOMINAZIONE OFFERTA",
@@ -112,6 +128,14 @@ df = df.dropna(
 top3 = (
     df.sort_values("TOTALE_NUM")
       .head(3)
+)
+
+first_total = float(top3.iloc[0]["TOTALE_NUM"])
+second_total = float(top3.iloc[1]["TOTALE_NUM"])
+
+saving_vs_second = round(
+    second_total - first_total,
+    2
 )
 
 best = top3.iloc[0]
@@ -138,6 +162,24 @@ if changed:
     cards = ""
 
     for idx, (_, row) in enumerate(top3.iterrows()):
+
+        difference_block = ""
+
+if idx == 0:
+
+    difference_block = f"""
+    <div style="
+        background:#e8fff0;
+        border-left:5px solid #28a745;
+        padding:12px;
+        border-radius:8px;
+        margin-bottom:12px;
+        font-weight:bold;
+    ">
+        📉 Vantaggio sul 2° classificato:
+        € {saving_vs_second:.2f}
+    </div>
+    """
 
         cards += f"""
         <div style="
@@ -200,6 +242,7 @@ if changed:
             ">
                 <b>💰 TOTALE:</b>
                 {row['TOTALE']}
+                {difference_block}
             </div>
 
             <table style="
@@ -248,6 +291,28 @@ if changed:
                 {row['NOTE']}
 
             </div>
+
+<div style="
+    text-align:center;
+    margin-top:15px;
+">
+
+    <a href="{row['LINK OFFERTA']}"
+       style="
+            background:#0078d4;
+            color:white;
+            text-decoration:none;
+            padding:12px 20px;
+            border-radius:8px;
+            display:inline-block;
+            font-weight:bold;
+       ">
+
+       🔗 Vai all'offerta
+
+    </a>
+
+</div>
 
         </div>
         """
