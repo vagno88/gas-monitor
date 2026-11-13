@@ -3,6 +3,7 @@ import json
 import smtplib
 import pandas as pd
 
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 CSV_URL = "https://docs.google.com/spreadsheets/d/18bzSR5JAIGhiISITbEMehDAWRVXMJqUNbqXeTmYLttM/export?format=csv&gid=325699321"
@@ -18,13 +19,21 @@ EMAIL_TO = [
 ]
 
 
-def send_email(subject, body):
+def send_email(subject, html_body):
 
-    msg = MIMEText(body, "plain", "utf-8")
+    msg = MIMEMultipart("alternative")
 
     msg["Subject"] = subject
     msg["From"] = EMAIL_USER
     msg["To"] = ", ".join(EMAIL_TO)
+
+    msg.attach(
+        MIMEText(
+            html_body,
+            "html",
+            "utf-8"
+        )
+    )
 
     with smtplib.SMTP_SSL(
         "smtp.gmail.com",
@@ -117,78 +126,173 @@ changed = (
 
 if changed:
 
-    body = """
-🏆 TOP 3 OFFERTE GAS PREZZO FISSO
-=================================
-"""
+    medals = ["🥇", "🥈", "🥉"]
 
-    for pos, (_, row) in enumerate(top3.iterrows(), start=1):
+    cards = ""
 
-        body += f"""
+    for idx, (_, row) in enumerate(top3.iterrows()):
 
-==========================================
-POSIZIONE #{pos}
-==========================================
+        cards += f"""
+        <div style="
+            background:#ffffff;
+            border-radius:16px;
+            padding:18px;
+            margin-bottom:18px;
+            border:1px solid #d9d9d9;
+            box-shadow:0 2px 8px rgba(0,0,0,0.08);
+        ">
 
-GESTORE
---------
-{row['GESTORE']}
+            <h2 style="
+                margin:0;
+                color:#003366;
+            ">
+                {medals[idx]} {row['GESTORE']}
+            </h2>
 
-OFFERTA
---------
-{row['DENOMINAZIONE OFFERTA']}
+            <p style="
+                margin-top:6px;
+                margin-bottom:16px;
+                font-size:15px;
+            ">
+                <strong>{row['DENOMINAZIONE OFFERTA']}</strong>
+            </p>
 
-QVD - CCV
----------
-{row['QVD - CCV']}
+            <div style="
+                background:#dff6dd;
+                color:#0a6417;
+                padding:15px;
+                border-radius:12px;
+                text-align:center;
+                margin-bottom:16px;
+            ">
+                <div style="
+                    font-size:12px;
+                    font-weight:bold;
+                    letter-spacing:1px;
+                ">
+                    PREZZO SMC
+                </div>
 
-PREZZO SMC
-----------
-{row['PREZZO Smc']}
+                <div style="
+                    font-size:34px;
+                    font-weight:bold;
+                    margin-top:4px;
+                ">
+                    {row['PREZZO Smc']}
+                </div>
+            </div>
 
-TOTALE
--------
-{row['TOTALE']}
+            <table style="
+                width:100%;
+                border-collapse:collapse;
+                font-size:14px;
+            ">
 
-AGGIORNATO
-----------
-{row['AGGIORNATO']}
+                <tr>
+                    <td style="padding:6px;"><b>💰 Totale</b></td>
+                    <td style="padding:6px;">{row['TOTALE']}</td>
+                </tr>
 
-VALIDITA'
----------
-{row["VALIDITA'"]}
+                <tr>
+                    <td style="padding:6px;"><b>📋 QVD-CCV</b></td>
+                    <td style="padding:6px;">{row['QVD - CCV']}</td>
+                </tr>
 
-NOTE
-----
-{row['NOTE']}
+                <tr>
+                    <td style="padding:6px;"><b>📅 Aggiornato</b></td>
+                    <td style="padding:6px;">{row['AGGIORNATO']}</td>
+                </tr>
 
-DURATA CONTRATTO
-----------------
-{row['DURATA CONTRATTO']}
-"""
+                <tr>
+                    <td style="padding:6px;"><b>⏳ Validità</b></td>
+                    <td style="padding:6px;">{row["VALIDITA'"]}</td>
+                </tr>
 
-    body += f"""
+                <tr>
+                    <td style="padding:6px;"><b>📝 Durata</b></td>
+                    <td style="padding:6px;">{row['DURATA CONTRATTO']}</td>
+                </tr>
 
-==========================================
-PRECEDENTE MIGLIORE OFFERTA
-==========================================
+            </table>
 
-GESTORE
---------
-{previous.get('gestore', 'N/D')}
+            <div style="
+                background:#f5f5f5;
+                border-radius:8px;
+                padding:10px;
+                margin-top:12px;
+                font-size:12px;
+                color:#555;
+            ">
+                {row['NOTE']}
+            </div>
 
-OFFERTA
---------
-{previous.get('offerta', 'N/D')}
+        </div>
+        """
 
-TOTALE
-------
-{previous.get('totale', 'N/D')}
-"""
+    html_body = f"""
+    <html>
+    <body style="
+        background:#f0f2f5;
+        font-family:Arial,sans-serif;
+        padding:20px;
+        margin:0;
+    ">
+
+        <div style="
+            max-width:700px;
+            margin:auto;
+        ">
+
+            <h1 style="
+                color:#003366;
+                text-align:center;
+            ">
+                🏆 Nuova Migliore Offerta Gas
+            </h1>
+
+            <p style="
+                text-align:center;
+                color:#555;
+            ">
+                È stata rilevata una variazione nella classifica delle offerte gas a prezzo fisso.
+            </p>
+
+            {cards}
+
+            <div style="
+                background:#fff3cd;
+                border-radius:12px;
+                padding:16px;
+                margin-top:20px;
+                border:1px solid #ffe69c;
+            ">
+
+                <h3 style="margin-top:0;">
+                    📌 Precedente Migliore Offerta
+                </h3>
+
+                <b>Gestore:</b>
+                {previous.get('gestore', 'N/D')}
+                <br><br>
+
+                <b>Offerta:</b>
+                {previous.get('offerta', 'N/D')}
+                <br><br>
+
+                <b>Totale:</b>
+                {previous.get('totale', 'N/D')}
+
+            </div>
+
+        </div>
+
+    </body>
+    </html>
+    """
 
     send_email(
         "🏆 Nuova migliore offerta GAS rilevata",
-        body
+        html_body
     )
 
     save_current(current)
