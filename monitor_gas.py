@@ -87,6 +87,14 @@ print("Download offerte...")
 df = pd.read_csv(CSV_URL)
 
 df["TOTALE_NUM"] = (
+    df["TOTALE"]
+    .astype(str)
+    .str.replace("€", "", regex=False)
+    .str.replace(".", "", regex=False)
+    .str.replace(",", ".", regex=False)
+    .str.strip()
+)
+
 df["TOTALE_NUM"] = pd.to_numeric(
     df["TOTALE_NUM"],
     errors="coerce"
@@ -119,6 +127,17 @@ df = df[
 ]
 
 top3 = (
+    df.sort_values("TOTALE_NUM")
+      .head(3)
+)
+
+first_total = float(top3.iloc[0]["TOTALE_NUM"])
+second_total = float(top3.iloc[1]["TOTALE_NUM"])
+
+saving_vs_second = round(
+    second_total - first_total,
+    2
+)
     df.sort_values("TOTALE_NUM")
       .head(3)
 )
