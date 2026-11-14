@@ -354,7 +354,7 @@ if changed:
     """
 
     send_email(
-        f"🏆 {best['GESTORE']} | {best['PREZZO Smc']}",
+        f"🔥MIGLIOR OFFERTA GAS AGGIORNATA - 1° {best['GESTORE']} {best['GESTORE']} | {best['PREZZO Smc']}",
         html_body
     )
 
