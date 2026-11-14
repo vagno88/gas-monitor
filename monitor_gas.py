@@ -126,13 +126,6 @@ top3 = (
 
 best = top3.iloc[0]
 
-first_total = float(top3.iloc[0]["TOTALE_NUM"])
-second_total = float(top3.iloc[1]["TOTALE_NUM"])
-
-saving_vs_second = round(
-    second_total - first_total,
-    2
-)
 
 current = {
     "gestore": str(best["GESTORE"]),
@@ -162,17 +155,7 @@ if changed:
         if idx == 0:
 
             difference_block = f"""
-            <div style="
-                background:#e8fff0;
-                border-left:5px solid #28a745;
-                padding:12px;
-                border-radius:8px;
-                margin-bottom:12px;
-                font-weight:bold;
-            ">
-                📉 Vantaggio sul 2° classificato:
-                € {saving_vs_second:.2f}
-            </div>
+            
             """
 
         cards += f"""
@@ -227,15 +210,7 @@ if changed:
                 </div>
 
             </div>
-            <div style="
-                background:#eef5ff;
-                padding:12px;
-                border-radius:10px;
-                margin-bottom:12px;
-            ">
-                <b>💰 TOTALE:</b>
-                {row['TOTALE']}
-            </div>
+           
 
             {difference_block}
 
